@@ -1,0 +1,46 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  name      String?
+  tenantId  String?
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  createdAt   DateTime @default(now())
+  email       String?
+  firstName   String?
+  id          String   @id @default(cuid())
+  lastName    String?
+  phoneNumber String?
+  tenantId    String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Lead {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  tenantId    String?
+  title       String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Opportunity {
+  createdAt      DateTime @default(now())
+  description    String?
+  estimatedValue Float?
+  id             String   @id @default(cuid())
+  tenantId       String?
+  title          String?
+  updatedAt      DateTime @updatedAt
+}
