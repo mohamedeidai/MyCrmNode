@@ -16,17 +16,38 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { OpportunityService } from "../opportunity.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { OpportunityCreateInput } from "./OpportunityCreateInput";
 import { Opportunity } from "./Opportunity";
 import { OpportunityFindManyArgs } from "./OpportunityFindManyArgs";
 import { OpportunityWhereUniqueInput } from "./OpportunityWhereUniqueInput";
 import { OpportunityUpdateInput } from "./OpportunityUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class OpportunityControllerBase {
-  constructor(protected readonly service: OpportunityService) {}
+  constructor(
+    protected readonly service: OpportunityService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Opportunity })
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
+  @swagger.ApiBody({
+    type: OpportunityCreateInput,
+  })
   async createOpportunity(
     @common.Body() data: OpportunityCreateInput
   ): Promise<Opportunity> {
@@ -44,9 +65,18 @@ export class OpportunityControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Opportunity] })
   @ApiNestedQuery(OpportunityFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async opportunities(@common.Req() request: Request): Promise<Opportunity[]> {
     const args = plainToClass(OpportunityFindManyArgs, request.query);
     return this.service.opportunities({
@@ -63,9 +93,18 @@ export class OpportunityControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Opportunity })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async opportunity(
     @common.Param() params: OpportunityWhereUniqueInput
   ): Promise<Opportunity | null> {
@@ -89,9 +128,21 @@ export class OpportunityControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Opportunity })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
+  @swagger.ApiBody({
+    type: OpportunityUpdateInput,
+  })
   async updateOpportunity(
     @common.Param() params: OpportunityWhereUniqueInput,
     @common.Body() data: OpportunityUpdateInput
@@ -123,6 +174,14 @@ export class OpportunityControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Opportunity })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteOpportunity(
     @common.Param() params: OpportunityWhereUniqueInput
   ): Promise<Opportunity | null> {

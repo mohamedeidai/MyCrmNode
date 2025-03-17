@@ -21,6 +21,14 @@ import { OpportunityList } from "./opportunity/OpportunityList";
 import { OpportunityCreate } from "./opportunity/OpportunityCreate";
 import { OpportunityEdit } from "./opportunity/OpportunityEdit";
 import { OpportunityShow } from "./opportunity/OpportunityShow";
+import { UserList } from "./user/UserList";
+import { UserCreate } from "./user/UserCreate";
+import { UserEdit } from "./user/UserEdit";
+import { UserShow } from "./user/UserShow";
+import { RoleList } from "./role/RoleList";
+import { RoleCreate } from "./role/RoleCreate";
+import { RoleEdit } from "./role/RoleEdit";
+import { RoleShow } from "./role/RoleShow";
 import { jwtAuthProvider } from "./auth-provider/ra-auth-jwt";
 
 const App = (): React.ReactElement => {
@@ -61,6 +69,20 @@ const App = (): React.ReactElement => {
           edit={OpportunityEdit}
           create={OpportunityCreate}
           show={OpportunityShow}
+        />
+        <Resource
+          name="User"
+          list={UserList}
+          edit={UserEdit}
+          create={UserCreate}
+          show={UserShow}
+        />
+        <Resource
+          name="Role"
+          list={RoleList}
+          edit={RoleEdit}
+          create={RoleCreate}
+          show={RoleShow}
         />
       </Admin>
     </div>
