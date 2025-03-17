@@ -18,27 +18,27 @@ import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import * as nestAccessControl from "nest-access-control";
 import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
-import { OpportunityService } from "../opportunity.service";
+import { RoleService } from "../role.service";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { OpportunityCreateInput } from "./OpportunityCreateInput";
-import { Opportunity } from "./Opportunity";
-import { OpportunityFindManyArgs } from "./OpportunityFindManyArgs";
-import { OpportunityWhereUniqueInput } from "./OpportunityWhereUniqueInput";
-import { OpportunityUpdateInput } from "./OpportunityUpdateInput";
+import { RoleCreateInput } from "./RoleCreateInput";
+import { Role } from "./Role";
+import { RoleFindManyArgs } from "./RoleFindManyArgs";
+import { RoleWhereUniqueInput } from "./RoleWhereUniqueInput";
+import { RoleUpdateInput } from "./RoleUpdateInput";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
-export class OpportunityControllerBase {
+export class RoleControllerBase {
   constructor(
-    protected readonly service: OpportunityService,
+    protected readonly service: RoleService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
-  @swagger.ApiCreatedResponse({ type: Opportunity })
+  @swagger.ApiCreatedResponse({ type: Role })
   @nestAccessControl.UseRoles({
-    resource: "Opportunity",
+    resource: "Role",
     action: "create",
     possession: "any",
   })
@@ -46,20 +46,14 @@ export class OpportunityControllerBase {
     type: errors.ForbiddenException,
   })
   @swagger.ApiBody({
-    type: OpportunityCreateInput,
+    type: RoleCreateInput,
   })
-  async createOpportunity(
-    @common.Body() data: OpportunityCreateInput
-  ): Promise<Opportunity> {
-    return await this.service.createOpportunity({
+  async createRole(@common.Body() data: RoleCreateInput): Promise<Role> {
+    return await this.service.createRole({
       data: data,
       select: {
         createdAt: true,
-        description: true,
-        estimatedValue: true,
         id: true,
-        tenantId: true,
-        title: true,
         updatedAt: true,
       },
     });
@@ -67,27 +61,23 @@ export class OpportunityControllerBase {
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
-  @swagger.ApiOkResponse({ type: [Opportunity] })
-  @ApiNestedQuery(OpportunityFindManyArgs)
+  @swagger.ApiOkResponse({ type: [Role] })
+  @ApiNestedQuery(RoleFindManyArgs)
   @nestAccessControl.UseRoles({
-    resource: "Opportunity",
+    resource: "Role",
     action: "read",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async opportunities(@common.Req() request: Request): Promise<Opportunity[]> {
-    const args = plainToClass(OpportunityFindManyArgs, request.query);
-    return this.service.opportunities({
+  async roles(@common.Req() request: Request): Promise<Role[]> {
+    const args = plainToClass(RoleFindManyArgs, request.query);
+    return this.service.roles({
       ...args,
       select: {
         createdAt: true,
-        description: true,
-        estimatedValue: true,
         id: true,
-        tenantId: true,
-        title: true,
         updatedAt: true,
       },
     });
@@ -95,28 +85,24 @@ export class OpportunityControllerBase {
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
-  @swagger.ApiOkResponse({ type: Opportunity })
+  @swagger.ApiOkResponse({ type: Role })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "Opportunity",
+    resource: "Role",
     action: "read",
     possession: "own",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async opportunity(
-    @common.Param() params: OpportunityWhereUniqueInput
-  ): Promise<Opportunity | null> {
-    const result = await this.service.opportunity({
+  async role(
+    @common.Param() params: RoleWhereUniqueInput
+  ): Promise<Role | null> {
+    const result = await this.service.role({
       where: params,
       select: {
         createdAt: true,
-        description: true,
-        estimatedValue: true,
         id: true,
-        tenantId: true,
-        title: true,
         updatedAt: true,
       },
     });
@@ -130,10 +116,10 @@ export class OpportunityControllerBase {
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
-  @swagger.ApiOkResponse({ type: Opportunity })
+  @swagger.ApiOkResponse({ type: Role })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "Opportunity",
+    resource: "Role",
     action: "update",
     possession: "any",
   })
@@ -141,23 +127,19 @@ export class OpportunityControllerBase {
     type: errors.ForbiddenException,
   })
   @swagger.ApiBody({
-    type: OpportunityUpdateInput,
+    type: RoleUpdateInput,
   })
-  async updateOpportunity(
-    @common.Param() params: OpportunityWhereUniqueInput,
-    @common.Body() data: OpportunityUpdateInput
-  ): Promise<Opportunity | null> {
+  async updateRole(
+    @common.Param() params: RoleWhereUniqueInput,
+    @common.Body() data: RoleUpdateInput
+  ): Promise<Role | null> {
     try {
-      return await this.service.updateOpportunity({
+      return await this.service.updateRole({
         where: params,
         data: data,
         select: {
           createdAt: true,
-          description: true,
-          estimatedValue: true,
           id: true,
-          tenantId: true,
-          title: true,
           updatedAt: true,
         },
       });
@@ -172,29 +154,25 @@ export class OpportunityControllerBase {
   }
 
   @common.Delete("/:id")
-  @swagger.ApiOkResponse({ type: Opportunity })
+  @swagger.ApiOkResponse({ type: Role })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "Opportunity",
+    resource: "Role",
     action: "delete",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async deleteOpportunity(
-    @common.Param() params: OpportunityWhereUniqueInput
-  ): Promise<Opportunity | null> {
+  async deleteRole(
+    @common.Param() params: RoleWhereUniqueInput
+  ): Promise<Role | null> {
     try {
-      return await this.service.deleteOpportunity({
+      return await this.service.deleteRole({
         where: params,
         select: {
           createdAt: true,
-          description: true,
-          estimatedValue: true,
           id: true,
-          tenantId: true,
-          title: true,
           updatedAt: true,
         },
       });

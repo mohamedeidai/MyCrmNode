@@ -45,6 +45,9 @@ export class ContactControllerBase {
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
+  @swagger.ApiBody({
+    type: ContactCreateInput,
+  })
   async createContact(
     @common.Body() data: ContactCreateInput
   ): Promise<Contact> {
@@ -139,6 +142,9 @@ export class ContactControllerBase {
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
+  })
+  @swagger.ApiBody({
+    type: ContactUpdateInput,
   })
   async updateContact(
     @common.Param() params: ContactWhereUniqueInput,

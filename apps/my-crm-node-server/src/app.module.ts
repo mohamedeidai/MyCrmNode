@@ -6,9 +6,11 @@ import { ContactModule } from "./contact/contact.module";
 import { LeadModule } from "./lead/lead.module";
 import { OpportunityModule } from "./opportunity/opportunity.module";
 import { UserModule } from "./user/user.module";
+import { RoleModule } from "./role/role.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
+import { StorageModule } from "./storage/storage.module";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { ServeStaticOptionsService } from "./serveStaticOptions.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -18,9 +20,13 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { ACLModule } from "./auth/acl.module";
 import { AuthModule } from "./auth/auth.module";
 
+import { LoggerModule } from "./logger/logger.module";
+
 @Module({
   controllers: [],
   imports: [
+    StorageModule,
+    LoggerModule,
     ACLModule,
     AuthModule,
     CustomerModule,
@@ -28,6 +34,7 @@ import { AuthModule } from "./auth/auth.module";
     LeadModule,
     OpportunityModule,
     UserModule,
+    RoleModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,
