@@ -29,6 +29,15 @@ services:
     restart: always
     ports:
       - 1234:8080
+  redis:
+    container_name: ${REDIS_HOST}
+    image: redis:7
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - redis:/data
 volumes:
   postgres: ~
   mysql: ~
+  redis:
+    driver: local

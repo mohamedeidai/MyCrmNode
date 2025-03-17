@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Opportunity } from "./Opportunity";
 import { OpportunityCountArgs } from "./OpportunityCountArgs";
 import { OpportunityFindManyArgs } from "./OpportunityFindManyArgs";
@@ -21,10 +27,20 @@ import { CreateOpportunityArgs } from "./CreateOpportunityArgs";
 import { UpdateOpportunityArgs } from "./UpdateOpportunityArgs";
 import { DeleteOpportunityArgs } from "./DeleteOpportunityArgs";
 import { OpportunityService } from "../opportunity.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Opportunity)
 export class OpportunityResolverBase {
-  constructor(protected readonly service: OpportunityService) {}
+  constructor(
+    protected readonly service: OpportunityService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "read",
+    possession: "any",
+  })
   async _opportunitiesMeta(
     @graphql.Args() args: OpportunityCountArgs
   ): Promise<MetaQueryPayload> {
@@ -34,14 +50,26 @@ export class OpportunityResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Opportunity])
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "read",
+    possession: "any",
+  })
   async opportunities(
     @graphql.Args() args: OpportunityFindManyArgs
   ): Promise<Opportunity[]> {
     return this.service.opportunities(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Opportunity, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "read",
+    possession: "own",
+  })
   async opportunity(
     @graphql.Args() args: OpportunityFindUniqueArgs
   ): Promise<Opportunity | null> {
@@ -52,7 +80,13 @@ export class OpportunityResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Opportunity)
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "create",
+    possession: "any",
+  })
   async createOpportunity(
     @graphql.Args() args: CreateOpportunityArgs
   ): Promise<Opportunity> {
@@ -62,7 +96,13 @@ export class OpportunityResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Opportunity)
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "update",
+    possession: "any",
+  })
   async updateOpportunity(
     @graphql.Args() args: UpdateOpportunityArgs
   ): Promise<Opportunity | null> {
@@ -82,6 +122,11 @@ export class OpportunityResolverBase {
   }
 
   @graphql.Mutation(() => Opportunity)
+  @nestAccessControl.UseRoles({
+    resource: "Opportunity",
+    action: "delete",
+    possession: "any",
+  })
   async deleteOpportunity(
     @graphql.Args() args: DeleteOpportunityArgs
   ): Promise<Opportunity | null> {

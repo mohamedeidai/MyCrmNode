@@ -10,8 +10,10 @@ services:
     environment:
       BCRYPT_SALT: ${BCRYPT_SALT}
       DB_URL: mysql://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
     depends_on:
-      - migrate
+      - redis
     restart: on-failure
   migrate:
     build:
@@ -56,6 +58,15 @@ services:
     restart: always
     ports:
       - 1234:8080
+  redis:
+    container_name: ${REDIS_HOST}
+    image: redis:7
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - redis:/data
 volumes:
   postgres: ~
   mysql: ~
+  redis:
+    driver: local
